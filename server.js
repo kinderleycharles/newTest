@@ -1,8 +1,8 @@
 'use strict';
 
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var http = require('http').createServer(app);
+var io = require('socket.io').listen(http);
 
 const PORT = process.env.PORT || 5000;
 
@@ -17,11 +17,6 @@ io.on('connection', function(socket){
     io.emit('device status', msg);
   });
 });
-
-// io.configure(function () {
-//   io.set("transports", ["xhr-polling"]);
-//   io.set("polling duration", 10);
-// });
 
 http.listen(PORT, function(){
   console.log(`listening on: ${ PORT }`);
