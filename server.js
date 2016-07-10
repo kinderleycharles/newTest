@@ -15,7 +15,10 @@ const io = socketIO(server);
 
 io.on('connection', (socket) => {
   console.log('Client connected');
-  socket.on('disconnect', () => console.log('Client disconnected'));
+  socket.on('device status', function(msg){
+    // console.log(msg.name + msg.status);
+    io.emit('device status', msg);
+  });
 });
 
 setInterval(() => io.emit('time', new Date().toTimeString()), 1000);

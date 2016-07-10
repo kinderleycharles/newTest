@@ -1,12 +1,145 @@
 <html>
+  <head>
+    <title>Kai</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
   <body>
-    <p id='server-time'></p>
+
+    <!-- Header which contains the navigation bar -->
+    <div class="navbar-fixed">
+      <nav>
+        <div class="nav-wrapper">
+          <a href="#" class="brand-logo center">Kai</a>
+          <div class="right">
+            <a href="index.html">Ver. 2</a>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Body of the page -->
+    <div class="container">
+
+      <!-- Front Door Card -->
+      <div class="row">
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s9">
+                <span class="card-title">Door</span>
+              </div>
+              <div class="col s3">
+                <div class="switch right">
+                    <label>
+                      OFF
+                      <input id="door" type="checkbox">
+                      <span class="lever"></span>
+                      ON
+                    </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lights Card -->
+      <div class="row">
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s9">
+                <span class="card-title">Light</span>
+              </div>
+              <div class="col s3">
+                <div class="switch right">
+                  <label>
+                    OFF
+                    <input id="light" type="checkbox">
+                    <span class="lever"></span>
+                    ON
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coffee Card -->
+      <div class="row">
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s9">
+                <span class="card-title">Coffee Machine</span>
+              </div>
+              <div class="col s3">
+                <div class="switch right">
+                  <label>
+                    OFF
+                    <input id="coffee" type="checkbox">
+                    <span class="lever"></span>
+                    ON
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Window Card -->
+      <div class="row">
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s9">
+                <span class="card-title">Window</span>
+              </div>
+              <div class="col s3">
+                <div class="switch right">
+                  <label>
+                    OFF
+                    <input id="wind" type="checkbox">
+                    <span class="lever"></span>
+                    ON
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Materialize Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
     <script>
       var socket = io();
-      var el = document.getElementById('server-time');
-      socket.on('time', function(timeString) {
-        el.innerHTML = 'Server time: ' + timeString;
+      $('#door').change(function(){
+        socket.emit('device status', {id:'#door', name: 'Door locked: ', status: $('#door').prop('checked')});
+        $('#door').prop('checked', $('#door').prop('checked'));
+      });
+      $('#light').change(function(){
+        socket.emit('device status', {id:'#light', name: 'Light OFF: ', status: $('#light').prop('checked')});
+        $('#light').prop('checked', $('#light').prop('checked'));
+      });
+      $('#coffee').change(function(){
+        socket.emit('device status', {id:'#coffee', name: 'Coffee Machine OFF: ', status: $('#coffee').prop('checked')});
+        $('#coffee').prop('checked', $('#coffee').prop('checked'));
+      });
+      $('#wind').change(function(){
+        socket.emit('device status', {id:'#wind', name: 'Windows closed: ', status: $('#wind').prop('checked')});
+        $('#wind').prop('checked', $('#wind').prop('checked'));
+      });
+      socket.on('device status', function(msg){
+        $(msg.id).prop('checked', msg.status);
       });
     </script>
   </body>
