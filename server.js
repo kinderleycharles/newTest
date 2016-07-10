@@ -18,10 +18,10 @@ io.on('connection', function(socket){
   });
 });
 
-io.configure(function () {
-  io.set("transports", ["xhr-polling"]);
-  io.set("polling duration", 10);
-});
+// io.configure(function () {
+//   io.set("transports", ["xhr-polling"]);
+//   io.set("polling duration", 10);
+// });
 
 http.listen(PORT, function(){
   console.log(`listening on: ${ PORT }`);
