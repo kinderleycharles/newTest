@@ -19,4 +19,7 @@ io.on('connection', function(socket){
     // console.log(msg.name + msg.status);
     io.emit('device status', msg);
   });
+  socket.on('chat message', function(msg){
+    io.emit('chat message', msg);
+  });
 });
