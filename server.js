@@ -2,7 +2,7 @@
 
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io').listen(http);
+var io = require('socket.io').(http);
 
 const PORT = process.env.PORT || 5000;
 http.listen(PORT, function(){
@@ -16,10 +16,7 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('device status', function(msg){
-    // console.log(msg.name + msg.status);
+    console.log(msg.name + msg.status);
     io.emit('device status', msg);
-  });
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
   });
 });
