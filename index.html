@@ -113,11 +113,31 @@
           </div>
         </div>
       </div>
+
+      <!-- Ros Connection -->
+      <div class="row">
+        <div id="statusIndicator">
+          <p id="connecting">
+            Connecting to rosbridge...
+          </p>
+          <p id="connected" style="color:#00D600; display:none">
+            Connected
+          </p>
+          <p id="error" style="color:#FF0000; display:none">
+            Error in the backend!
+          </p>
+          <p id="closed" style="display:none">
+            Connection closed.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Materialize Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+    <script src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+    <script src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
@@ -141,6 +161,129 @@
       socket.on('device status', function(msg){
         $(msg.id).prop('checked', msg.status);
       });
+    </script>
+
+
+    <script>
+      var ros = new ROSLIB.Ros();
+
+      ros.on('error', function(error) {
+        document.getElementById('connecting').style.display = 'none';
+        document.getElementById('connected').style.display = 'none';
+        document.getElementById('closed').style.display = 'none';
+        document.getElementById('error').style.display = 'inline';
+        console.log(error);
+      });
+
+      ros.on('connection', function() {
+        console.log('Connection made!');
+        document.getElementById('connecting').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+        document.getElementById('closed').style.display = 'none';
+        document.getElementById('connected').style.display = 'inline';
+      });
+
+      ros.on('close', function() {
+        console.log('Connection closed.');
+        document.getElementById('connecting').style.display = 'none';
+        document.getElementById('connected').style.display = 'none';
+        document.getElementById('closed').style.display = 'inline';
+      });
+      ros.connect('wss://sleepy-inlet-14613.herokuapp.com/');
+
+    var exampleTopic = new ROSLIB.Topic({
+      ros: ros,
+      name: '/example',
+      messageType: 'std_msgs/String'
+    });
+
+    function publishEncoded(topic, obj) {
+      var msg = new ROSLIB.Message({
+      data: JSON.stringify(obj)
+      });
+      topic.publish(msg);
+    }
+
+    function decodeMessage(msg) {	// Comment out the body of this Function will NOT change anything!
+    //  return JSON.parse(msg.data);
+    }
+
+    function RosTypedMessaging(topic) { // Comment out the body of this Function will Make the Topic undefined!, No Publish
+      this.topic = topic;
+      this.topic.subscribe(this.handleMessage_.bind(this));
+    }
+    RosTypedMessaging.prototype.__proto__ = EventEmitter2.prototype;
+
+    RosTypedMessaging.prototype.handleMessage_ = function(msg) { // Comment out the body of this Function will NOT change anything!
+    //  var decoded = decodeMessage(msg);
+    //  var type = decoded.type;
+    //  var data = decoded.data;
+    //  this.emit(type, data);
+    };
+    /*
+    RosTypedMessaging.prototype.sendMessage = function() {
+        var msg = {a:"------"};	// THis will publish data: {"a":"--------"}
+      publishEncoded(this.topic, msg);
+    };
+    */
+    RosTypedMessaging.prototype.sendMessage = function(A,B) { // Changed type to A, data to B
+    //     var msg = {type: type, data: data};
+        var msg = {A,B};
+    //   var msg = {type};	// I'm testing this one, type will display 1234, data will display 'test-------'
+      publishEncoded(this.topic, msg);
+    };
+
+    //* Example implementation of RosTypedMessaging.
+    var myMessageChannel = new RosTypedMessaging(exampleTopic);
+
+    myMessageChannel.on('fooo', function(data) {
+      console.log('foooo!', data);
+    });
+    /*
+    setInterval(function() {
+      var mySyncObject = {
+        int: 123,	// I added this one for testing!
+        time: Date.now(),
+        thisIsString: 'valid :-)'
+      };
+    */
+    setInterval(function() {
+      var mySyncObject = {
+    	x:'word',
+    	y:1234
+      };
+    //  myMessageChannel.sendMessage('issa is Testing Code', mySyncObject.int, mySyncObject.thisIsString);
+        myMessageChannel.sendMessage( mySyncObject.y, mySyncObject.x);
+    }, 1000);	// Delay Time in MS, Publishing frequency!
+    //---------------------------// THE END! ----------------------------
+
+      // Subscribing to a Topic:
+      // This will make the server listening to ROS waiting for publishing a string type message over a topic named "listener"
+      //----------------------------------------------------------------------------------------------------------------------
+
+      // Like when publishing a topic, we first create a Topic object with details of the topic's name
+      // and message type. Note that we can call publish or subscribe on the same topic object.
+      var listener = new ROSLIB.Topic({
+        ros : ros,
+        name : '/listener',
+        messageType : 'std_msgs/String'
+      });
+
+      // Then we add a callback to be called every time a message is published on this topic.
+      listener.subscribe(function(message) {
+        console.log('Received message on ' + listener.name + ': ' + message.data);
+
+        // If desired, we can unsubscribe from the topic as well.
+        listener.unsubscribe();
+      });
+
+      // Setting a param value
+      // ---------------------
+
+      ros.getParams(function(params) {
+        console.log(params);
+      });
+
     </script>
   </body>
 </html>
