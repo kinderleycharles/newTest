@@ -14,6 +14,14 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/roslib.min.js', function(req, res){
+  res.sendFile(__dirname + '/roslib.min.js');
+});
+
+app.get('/eventemitter2.min.js', function(req, res){
+  res.sendFile(__dirname + '/eventemitter2.min.js');
+});
+
 io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('device status', function(msg){
