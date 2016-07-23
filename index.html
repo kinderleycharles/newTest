@@ -189,7 +189,7 @@
         document.getElementById('connected').style.display = 'none';
         document.getElementById('closed').style.display = 'inline';
       });
-      ros.connect('wss://sleepy-inlet-14613.herokuapp.com/');
+      ros.connect('wss://sleepy-inlet-14613.herokuapp.com/:9090');
 
     var exampleTopic = new ROSLIB.Topic({
       ros: ros,
