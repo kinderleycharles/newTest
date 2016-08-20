@@ -23,7 +23,15 @@ app.get('/eventemitter2.min.js', function(req, res){
 });
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+  socket.on('connected_user', function(msg){
+    console.log('A ' + msg + ' just connected');
+    io.emit('connected_user', msg);
+
+    // Send confirmation back to Java application
+    if('java application'.toLowerCase() === msg.toLowerCase()) {
+      io.emit('connection_confirmation', true);
+    }
+  });
   socket.on('device status', function(msg){
     console.log(msg.name + msg.status);
     io.emit('device status', msg);

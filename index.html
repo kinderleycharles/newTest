@@ -4,104 +4,6 @@
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <script src="/eventemitter2.min.js"></script>
-    <script src="/roslib.min.js"></script>
-    <script>
-      // Connecting to ROS
-      // -----------------
-
-      var ros = new ROSLIB.Ros({
-        url : 'wss://sleepy-inlet-14613.herokuapp.com/'
-      });
-
-      ros.on('connection', function() {
-        console.log('Connected to websocket server.');
-      });
-
-      ros.on('error', function(error) {
-        console.log('Error connecting to websocket server: ', error);
-      });
-
-      ros.on('close', function() {
-        console.log('Connection to websocket server closed.');
-      });
-
-      // Publishing a Topic
-      // ------------------
-
-      var cmdVel = new ROSLIB.Topic({
-        ros : ros,
-        name : '/cmd_vel',
-        messageType : 'geometry_msgs/Twist'
-      });
-
-      var twist = new ROSLIB.Message({
-        linear : {
-          x : 0.1,
-          y : 0.2,
-          z : 0.3
-        },
-        angular : {
-          x : -0.1,
-          y : -0.2,
-          z : -0.3
-        }
-      });
-      cmdVel.publish(twist);
-
-      // Subscribing to a Topic
-      // ----------------------
-
-      var listener = new ROSLIB.Topic({
-        ros : ros,
-        name : '/listener',
-        messageType : 'std_msgs/String'
-      });
-
-      listener.subscribe(function(message) {
-        console.log('Received message on ' + listener.name + ': ' + message.data);
-        listener.unsubscribe();
-      });
-
-      // Calling a service
-      // -----------------
-
-      var addTwoIntsClient = new ROSLIB.Service({
-        ros : ros,
-        name : '/add_two_ints',
-        serviceType : 'rospy_tutorials/AddTwoInts'
-      });
-
-      var request = new ROSLIB.ServiceRequest({
-        a : 1,
-        b : 2
-      });
-
-      addTwoIntsClient.callService(request, function(result) {
-        console.log('Result for service call on '
-          + addTwoIntsClient.name
-          + ': '
-          + result.sum);
-      });
-
-      // Getting and setting a param value
-      // ---------------------------------
-
-      ros.getParams(function(params) {
-        console.log(params);
-      });
-
-      var maxVelX = new ROSLIB.Param({
-        ros : ros,
-        name : 'max_vel_y'
-      });
-
-      maxVelX.set(0.8);
-      maxVelX.get(function(value) {
-        console.log('MAX VAL: ' + value);
-      });
-    </script>
   </head>
   <body>
 
@@ -119,6 +21,14 @@
 
     <!-- Body of the page -->
     <div class="container">
+
+      <!-- Username & Connected Users -->
+      <div class="row">
+          <h5>Connected Users</h5>
+          <hr/>
+          <ul id="messages" ></ul>
+          <hr/>
+      </div>
 
       <!-- Front Door Card -->
       <div class="row">
@@ -212,13 +122,6 @@
         </div>
       </div>
 
-      <!-- Ros Connection -->
-      <div class="row">
-        <div id="statusIndicator">
-          <h1>Simple roslib Example</h1>
-          <p>Check your Web Console for output.</p>
-        </div>
-      </div>
     </div>
 
     <!-- Materialize Script -->
@@ -228,6 +131,7 @@
 
     <script>
       var socket = io();
+      socket.emit('connected_user', 'Web App User');
       $('#door').change(function(){
         socket.emit('device status', {id:'#door', name: 'Door locked: ', status: $('#door').prop('checked')});
         $('#door').prop('checked', $('#door').prop('checked'));
@@ -244,8 +148,12 @@
         socket.emit('device status', {id:'#wind', name: 'Windows closed: ', status: $('#wind').prop('checked')});
         $('#wind').prop('checked', $('#wind').prop('checked'));
       });
+
       socket.on('device status', function(msg){
         $(msg.id).prop('checked', msg.status);
+      });
+      socket.on('connected_user', function(msg){
+        $('#messages').append($('<li>').text(msg));
       });
     </script>
 
