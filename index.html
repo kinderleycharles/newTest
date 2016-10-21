@@ -24,11 +24,17 @@
 
       <!-- Username & Connected Users -->
       <div class="row">
-          <h5>Connected Users</h5>
-          <hr/>
-          <ul id="messages" ></ul>
-          <hr/>
+          <div class="col s12 m6">
+            <h5>Connected Users</h5>
+            <ul id="messages" ></ul>
+          </div>
+          <div class="col s12 m6 right-align">
+            <h5>Temperature/Humidity</h5>
+            <span id="temperature"></span> /
+            <span id="humidity"></span>
+          </div>
       </div>
+      <hr/>
 
       <!-- Front Door Card -->
       <div class="row">
@@ -150,7 +156,11 @@
       });
 
       socket.on('device status', function(msg){
-        $(msg.id).prop('checked', msg.status);
+        if(msg.id === 'humidity') {
+          $('#humidity').text(msg);
+        } else {
+          $(msg.id).prop('checked', msg.status);
+        }
       });
       socket.on('connected_user', function(msg){
         $('#messages').append($('<li>').text(msg));
