@@ -137,33 +137,60 @@
 
     <script>
       var socket = io();
+
+      var device =
+      {
+        _type: 1,
+        _id: undefined,
+        _name: undefined,
+        _state: true,
+        _status: false
+      };
+
       socket.emit('connected_user', 'Web App User');
       $('#door').change(function(){
-        socket.emit('device status', {id:'#door', name: 'Door locked: ', status: $('#door').prop('checked')});
-        $('#door').prop('checked', $('#door').prop('checked'));
+        device._type = 1;
+        device._id = '#door';
+        device._name = 'Door locked';
+        device._state = true;
+        device._status = $('#door').prop('checked');
+        socket.emit('device status', device);
       });
       $('#light').change(function(){
-        socket.emit('device status', {id:'#light', name: 'Light OFF: ', status: $('#light').prop('checked')});
-        $('#light').prop('checked', $('#light').prop('checked'));
+        device._type = 1;
+        device._id = '#light';
+        device._name = 'Light OFF';
+        device._state = true;
+        device._status = $('#light').prop('checked');
+        socket.emit('device status', device);
       });
       $('#coffee').change(function(){
-        socket.emit('device status', {id:'#coffee', name: 'Coffee Machine OFF: ', status: $('#coffee').prop('checked')});
-        $('#coffee').prop('checked', $('#coffee').prop('checked'));
+        device._type = 1;
+        device._id = '#coffee';
+        device._name = 'Coffee Machine OFF';
+        device._state = true;
+        device._status = $('#coffee').prop('checked');
+        socket.emit('device status', device);
       });
       $('#wind').change(function(){
-        socket.emit('device status', {id:'#wind', name: 'Windows closed: ', status: $('#wind').prop('checked')});
-        $('#wind').prop('checked', $('#wind').prop('checked'));
+        device._type = 1;
+        device._id = '#wind';
+        device._name = 'Front windows closed';
+        device._state = true;
+        device._status = $('#wind').prop('checked');
+        socket.emit('device status', device);
       });
 
-      socket.on('device status', function(msg){
-        if(msg.id === 'humidity') {
-          $('#humidity').text(msg);
-        } else {
-          $(msg.id).prop('checked', msg.status);
-        }
-      });
       socket.on('connected_user', function(msg){
         $('#messages').append($('<li>').text(msg));
+      });
+      socket.on('device status', function(msg){
+        $(msg.id).prop('checked', msg.status);
+      });
+      socket.on('feedback', function(msg){
+        console.log('msg? H' + msg.H + ', T' + msg.T);
+        $('#humidity').text(msg.H);
+        $('#temperature').text(msg.T);
       });
     </script>
 

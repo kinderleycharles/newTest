@@ -33,7 +33,15 @@ io.on('connection', function(socket){
     }
   });
   socket.on('device status', function(msg){
-    console.log(msg.name + msg.status);
+    console.log('msg ->' + msg);
+    // console.log(msg.name + msg.status);
     io.emit('device status', msg);
+  });
+  socket.on('feedback', function(msg){
+    var json = JSON.parse(msg);
+    var home_condition = JSON.parse(json._status);
+    // console.log('msg? H' + home_condition.H + ', T' + home_condition.T);
+    // console.log('Status: ' + home_condition);
+    io.emit('feedback', home_condition);
   });
 });
